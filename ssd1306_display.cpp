@@ -63,7 +63,7 @@ DispSegment* DispLayout::create_segment(SSD1306_ADDR_MODE addr_mode, uint8_t col
   if(segments_qnt == 10)
     while(1);                                                                 // to many segments 
 
-  if(addr_mode == SSD1306_ADDR_MODE::PAGE)  // According to PDF on SSD1306
+  if(addr_mode == SSD1306_ADDR_MODE::PAGE)                                    // According to PDF on SSD1306
   {
     page_end_pg = page_start_pg;
     col_end_px = disp.WIDTH_PX;
@@ -266,6 +266,8 @@ void DispSegment::write_num(uint8_t x_px, uint8_t y_px, signed num, Font &font, 
 
   write_string(x_px, y_px, sbuf, font, color_noinv);
 }
+
+
 
 
 /**
@@ -762,7 +764,7 @@ void DispSegment::draw_hbar(uint8_t y_px, unsigned percent, Font &font, bool col
 * @param[in] qnt                      quantity of tick names
 * @param[in] x_step_px                x step between ticks in px
 * @param[in] labels                   array of tick names 
-* @param[in] font                      font that determines progress bar height
+* @param[in] font                     font that determines progress bar height
 */
 void DispSegment::draw_x_tick_labels(uint8_t x_px, uint8_t y_px, uint8_t qnt, uint8_t x_step_px, const char *labels[], Font &font)
 {
@@ -795,7 +797,7 @@ void DispSegment::draw_accum(uint8_t x_px, uint8_t y_px, uint8_t charge)
 * @brief Draws a bitmap. Coordinates correspond to upper left corner of the bitmap.
 * @param[in] x_px                        x coordinate in px
 * @param[in] y_px                        y coordinate in px
-* @param[in] bitmap                   Bitmap object
+* @param[in] bitmap                      Bitmap object
 */
 void DispSegment::draw_bitmap(uint8_t x_px, uint8_t y_px, Bitmap &bitmap)
 {
