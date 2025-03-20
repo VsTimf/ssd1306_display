@@ -1,7 +1,6 @@
 #pragma once
 
-/* Use HAL library */
-#include "stm32_cmsis.h"        // You can use include like "#include <stm32f4xx.h>" instead
+#include <stm32g0xx.h>                // Specify HAL Library for your controller
 
 
 class SSD1306_LL_INTERFACE

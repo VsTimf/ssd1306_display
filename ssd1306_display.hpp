@@ -4,6 +4,7 @@
 #include "ssd1306_fonts.hpp"
 #include "ssd1306_bitmaps.hpp"
 
+
 #define PAGE_SIZE 8
 
 enum class SSD1306_SCREEN_RESOLUTION{W128xH64, W128xH32, W64xH48, W64xH32};
@@ -291,26 +292,4 @@ public:
     void set_display_start_line(uint8_t start_line_px);
     void set_display_offset(uint8_t offset);
     void set_contrast(uint8_t contrast);
-};
-
-
-
-
-class BarChart
-{
-    uint8_t x,y = 0;        // base coordinates (px)
-    uint8_t w, h, sp;       // width of single chart (px), max height (px), space between charts (px)
-    signed bmin, bmax;      // min & max values of charts
-    uint8_t qnt;            // charts quantity
-
-    DispSegment* ds;        // pointer to display segment
-    uint8_t* lv;            // last charts value
-
-    public:
-
-    BarChart(DispSegment* _ds, uint8_t x_px, uint8_t y_px, uint8_t _qnt, uint8_t w_px, uint8_t sp_px, uint8_t h_px, signed _bmin, signed _bmax);
-    BarChart(DispSegment* _ds, uint8_t _qnt, uint8_t _w, uint8_t _sp, uint8_t _h, signed _bmin, signed _bmax);
-    BarChart(DispSegment* _ds, uint8_t _qnt, uint8_t _sp, signed _bmin, signed _bmax);
-
-    void show(signed* nv, bool part_update = false);
 };

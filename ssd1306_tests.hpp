@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ssd1306_display.hpp"
+#include "ssd1306.hpp"
 
 
 void ssd1306_run_tests(SSD1306_Display* display);

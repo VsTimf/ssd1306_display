@@ -10,7 +10,7 @@
   *
   *        - (optional) void FillMemory(uint8_t pattern, unsigned data_size); 
 */
-
+   
 
 #include "ssd1306_ll_interface.hpp"
 

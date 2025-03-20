@@ -196,9 +196,12 @@ void ssd1306_menu_test22(SSD1306_Display* display)
  */
 void ssd1306_chart_test(SSD1306_Display* display)
 {
-    BarChart* bar_chart1;
-    BarChart* bar_chart2;
-    BarChart* bar_chart3;
+    BarChart bar_chart1;
+    BarChart bar_chart2;
+    BarChart bar_chart3;
+
+    signed chart_vals[3][3];
+
     signed vals[3] = {30,60,90};
 
 
@@ -208,15 +211,15 @@ void ssd1306_chart_test(SSD1306_Display* display)
     display->write_string(0, ROW1, "Chart Test", font16);
     display->update_row(ROW1, font16);
     
-    bar_chart1 = new BarChart(display->dds, 0, 63, 3, 10, 2, 8*6, 0, 100);
-    bar_chart2 = new BarChart(display->dds, 58, 63, 3, 5, 1, 8*3, 0, 100);
-    bar_chart3 = new BarChart(display->dds, 90, 63, 3, 2, 1, 8*6, 0, 100);
+    bar_chart1 = BarChart(display->dds, &chart_vals[0][0], 0, 63, 3, 10, 2, 8*6, 0, 100);
+    bar_chart2 = BarChart(display->dds, &chart_vals[1][0], 58, 63, 3, 5, 1, 8*3, 0, 100);
+    bar_chart3 = BarChart(display->dds, &chart_vals[2][0], 90, 63, 3, 2, 1, 8*6, 0, 100);
    
     display->set_segment_update_mode_immediately();
     
-    bar_chart1->show(vals);
-    bar_chart2->show(vals);
-    bar_chart3->show(vals);
+    bar_chart1.show(vals);
+    bar_chart2.show(vals);
+    bar_chart3.show(vals);
 
 
     unsigned count = 10;
@@ -228,7 +231,7 @@ void ssd1306_chart_test(SSD1306_Display* display)
             vals[1]-=2;
             vals[2]-=3;
 
-            bar_chart1->show(vals);
+            bar_chart1.show(vals);
         }
 
         for(unsigned i = 0; i<30; i++)
@@ -237,7 +240,7 @@ void ssd1306_chart_test(SSD1306_Display* display)
             vals[1]+=2;
             vals[2]+=3;
 
-            bar_chart1->show(vals);
+            bar_chart1.show(vals);
         }
     }
     display->set_segment_update_mode_on_demand();
@@ -252,12 +255,11 @@ void ssd1306_chart_test(SSD1306_Display* display)
 void ssd1306_layout_test(SSD1306_Display* display)
 {
     DispLayout* test_layout;
-
+ 
     DispSegment* test_title;
     DispSegment* test_horizontal_area;
-    DispSegment* test_verctical_area;
+    DispSegment* test_vertical_area;
   
-    BarChart* bar_chart;
     signed vals[3] = {30,60,90};
     const char *lbl[] = {"1", "2", "3"};
 
@@ -267,7 +269,7 @@ void ssd1306_layout_test(SSD1306_Display* display)
     
     test_title  = test_layout->create_segment(SSD1306_ADDR_MODE::HORIZONTAL, 0, 0, display->WIDTH_PX-1, 1);
     test_horizontal_area  = test_layout->create_segment(SSD1306_ADDR_MODE::HORIZONTAL, 16, 2, display->WIDTH_PX-1, display->HEIGHT_PG-1);
-    test_verctical_area = test_layout->create_segment(SSD1306_ADDR_MODE::HORIZONTAL, 0, 2, 15, display->HEIGHT_PG-1);
+    test_vertical_area = test_layout->create_segment(SSD1306_ADDR_MODE::VERTICAL, 0, 2, 15, display->HEIGHT_PG-1);
   
   
     test_title->write_string(0, ROW1, "Layout Test", font16);
@@ -283,15 +285,12 @@ void ssd1306_layout_test(SSD1306_Display* display)
     test_horizontal_area->draw_bitmap(84, ROW5-5, accum[2]);
     test_horizontal_area->draw_bitmap(98, ROW5-5, accum[3]);
   
-  
-    bar_chart = new BarChart(test_verctical_area, 0, ROW6-2, 3, 4, 1, 39, 0, 100); 
-    bar_chart->show(vals);
-
-    test_verctical_area->draw_x_tick_labels(0, ROW6, 3, 0, lbl, font8);
+    BarChart::draw(test_vertical_area, vals, 0, ROW6-2, 3, 4, 1, 39, 0, 100);
+    test_vertical_area->draw_x_tick_labels(0, ROW6, 3, 0, lbl, font8);
   
     test_title->update();
     test_horizontal_area->update();
-    test_verctical_area->update();
+    test_vertical_area->update();
 }
 
 
