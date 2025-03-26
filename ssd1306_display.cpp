@@ -126,7 +126,7 @@ void DispSegment::clear_row(uint8_t y_pg, bool color_noinv)
       gram[y_pg*sw + idx] = (color_noinv) ? 0x00 : 0xFF;
   }
   
-  update_part(0, y_pg*PAGE_SIZE, sw-1, y_pg*PAGE_SIZE);
+  update_part(0, y_pg*SSD1306_PAGE_SIZE, sw-1, y_pg*SSD1306_PAGE_SIZE);
 }
 
 

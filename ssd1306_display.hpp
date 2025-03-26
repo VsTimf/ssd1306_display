@@ -5,7 +5,7 @@
 #include "ssd1306_bitmaps.hpp"
 
 
-#define PAGE_SIZE 8
+#define SSD1306_PAGE_SIZE 8
 
 enum class SSD1306_SCREEN_RESOLUTION{W128xH64, W128xH32, W64xH48, W64xH32};
 
