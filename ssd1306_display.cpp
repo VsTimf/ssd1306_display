@@ -173,34 +173,61 @@ void DispSegment::draw_pixel(uint8_t x_px, uint8_t y_px, bool px_en)
  */
 bool DispSegment::write_char(char ch, Font &font, bool color_noinv, bool no_interval)
 {
+  unsigned symbol;
   uint8_t width = font.get_symbol_width(ch);
 
-  if(!check_font(width, font.height))                                       
+  if(text_vertical_mode == false)
+  {
+    if(!check_font(width, font.height))                                       
     return false;                                                                      // Not enouth space to write char
 
-  unsigned symbol;
+    for(unsigned i = 0; i < width; i++) 
+    {
+      symbol = font.get_column(ch, i);
+      for(unsigned j = 0; j < font.height; j++)
+        ((symbol >> j) & 0x01) ? draw_pixel(x + i, (y + j), color_noinv) : draw_pixel(x + i, (y + j), !color_noinv);
+    }
+    
+    x += width;
 
-   
-  for(unsigned i = 0; i < width; i++) 
-  {
-    symbol = font.get_column(ch, i);
-    for(unsigned j = 0; j < font.height; j++)
-      ((symbol >> j) & 0x01) ? draw_pixel(x + i, (y + j), color_noinv) : draw_pixel(x + i, (y + j), !color_noinv);
+    if(no_interval)
+      return true;
+
+    for(unsigned i = 0; i < font.interval; i++) 
+      for(unsigned j = 0; j < font.height; j++)
+        draw_pixel(x + i, (y + j), !color_noinv);
+
+        
+      // The current space is now taken
+      x += font.interval;
+      return true;
   }
-  
-  x += width;
+  else
+  {
 
-  if(no_interval)
+    if(!check_vfont(width, font.height))                                       
+      return false;                                                                      // Not enouth space to write char
+
+    for(unsigned i = 0; i < width; i++) 
+    {
+      symbol = font.get_column(ch, i);
+      for(unsigned j = 0; j < font.height; j++)
+        ((symbol >> j) & 0x01) ? draw_pixel(x + j, (y - i), color_noinv) : draw_pixel(x + j, (y - i), !color_noinv);
+    }
+    
+    y -= width;
+
+    if(no_interval)
+      return true;
+
+    for(unsigned i = 0; i < font.interval; i++) 
+      for(unsigned j = 0; j < font.height; j++)
+        draw_pixel(x + j, (y + i), !color_noinv);
+
+    // The current space is now taken
+    y -= font.interval;
     return true;
-
-  for(unsigned i = 0; i < font.interval; i++) 
-    for(unsigned j = 0; j < font.height; j++)
-      draw_pixel(x + i, (y + j), !color_noinv);
-
-       
-  // The current space is now taken
-  x += font.interval;
-  return true;
+  }
 }
 
 
@@ -390,7 +417,7 @@ uint8_t DispSegment::get_num_string_size_px(signed num, Font &font)
 {
   char sbuf[10];
   char* sbuf_ptr = sbuf;
-  sprintf(sbuf, "% d", num);
+  sprintf(sbuf, "%d", num);
 
   uint8_t size_px = 0;
   

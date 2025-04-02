@@ -51,7 +51,8 @@ class DispSegment
     const unsigned segment_sz;
 
     SEGMENT_UPDATE_MODE upd_mode;  
-    SSD1306_ITEM_SELECT_METHOD select_method;                        
+    SSD1306_ITEM_SELECT_METHOD select_method;          
+    bool text_vertical_mode;                        // Horizontal or vertical text drawing              
 
     // Segment coordinates
     const uint8_t cs, ce;                           // column start, column end     (x)
@@ -72,13 +73,17 @@ class DispSegment
         disp(display), gram(segment_gram_ptr), segment_sz(segment_size), 
         sw(col_end - col_start + 1), sh(page_end - page_start + 1), shp((page_end - page_start + 1)*8),
         upd_mode(SEGMENT_UPDATE_MODE::ON_DEMAND),
-        select_method(SSD1306_ITEM_SELECT_METHOD::ARROW){}
+        select_method(SSD1306_ITEM_SELECT_METHOD::ARROW),
+        text_vertical_mode(false){}
     
 
     void set_segment_update_mode(SEGMENT_UPDATE_MODE mode){upd_mode = mode;}
     void set_segment_update_mode_on_demand(){upd_mode = SEGMENT_UPDATE_MODE::ON_DEMAND;}
     void set_segment_update_mode_immediately(){upd_mode = SEGMENT_UPDATE_MODE::IMMEDIATELY;}
     bool immediate_update_mode_enabled(){return upd_mode == SEGMENT_UPDATE_MODE::IMMEDIATELY;}
+
+    inline void set_text_horizontal_mode(void){text_vertical_mode = false;}
+    inline void set_text_vertical_mode(void){text_vertical_mode = true;}
 
     void set_select_method(SSD1306_ITEM_SELECT_METHOD _select_method){select_method = _select_method;}
 
@@ -90,6 +95,7 @@ class DispSegment
     inline bool set_cursor(uint8_t curs_x, uint8_t curs_y){if(curs_x<sw && curs_y<shp) {x = curs_x; y = curs_y; return true;} return false;}
     inline bool check_cursor(uint8_t curs_x, uint8_t curs_y) {return curs_x<sw && curs_y<shp;}
     inline bool check_font(uint8_t w, uint8_t h) {return ((x+w-1 < sw) && (y+h-1 < shp));}
+    inline bool check_vfont(uint8_t w, uint8_t h) {return ((x+h-1 < sw) && (y >= w-1));}
 
     bool write_char(char ch, Font &font, bool color_noinv, bool no_interval = false);
     void write_string(uint8_t x_px, uint8_t y_px, const char* str, Font &font, bool color_noinv = true);
@@ -189,7 +195,6 @@ class SSD1306_Display
 
     uint8_t curr_segment_id;                                                        // The id of the segment whose graphic data was sent to the ssd1306
     bool segment_part_updated;                                                      // partial segment update Flag
-
                                                             
   
     public:
@@ -222,6 +227,7 @@ public:
     inline void set_segment_update_mode_on_demand(){dds->set_segment_update_mode_on_demand();}
     inline void set_segment_update_mode_immediately(){dds->set_segment_update_mode_immediately();}
     inline bool immediate_update_mode_enabled(){return dds->immediate_update_mode_enabled();}
+
 
 
     inline void clear_screen(void){dds->clear(); update_screen();}

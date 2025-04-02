@@ -22,7 +22,8 @@ class Font
 	unsigned get_column(char c, uint8_t col);
 };
 
-
+extern Font font5;
 extern Font font8;
 extern Font font16;
+
 extern Font font_dig32;

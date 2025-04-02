@@ -360,14 +360,10 @@ unsigned find_scale(unsigned origin_scale)
 
 void Plot::plot(DispSegment* ds, signed* lv, uint8_t qnt)
 {
+  //font
+  Font* f = &font5;
 
-  uint8_t y_axis_shift;
-
-  uint8_t uy_tick_shift;
-  uint8_t by_tick_shift;
-
-
-
+  // widjet dimensions
   uint8_t x = 0;
   uint8_t y = ds->shp - 1;
 
@@ -375,7 +371,27 @@ void Plot::plot(DispSegment* ds, signed* lv, uint8_t qnt)
   uint8_t h = ds->shp;
 
 
-  signed min, max = lv[0];
+  // plot dimensions
+  uint8_t x0 = x + f->height + 2;
+  uint8_t y0 = y - f->height - 2;
+
+  uint8_t wp = w - x0 + 1;
+  uint8_t hp = y0 + 1;
+
+  
+
+
+  uint8_t y_tick_shift;
+  uint8_t x_tick_shift;
+
+
+
+
+
+
+
+  signed min = lv[0];
+  signed max = lv[0];
 
   for(uint8_t i=1; i<qnt; i++)
   {
@@ -390,11 +406,11 @@ void Plot::plot(DispSegment* ds, signed* lv, uint8_t qnt)
 
   int inp_max;
   int inp_min;
-  int scale, scale_min, scale_max;
+  int scale;
   int k;
 
 
-  scale = find_scale((max - min) / h);
+  scale = find_scale((max - min) / hp);
 
 
   k = (max > 0) ? ((max % scale != 0) ? ((max / scale) + 1) : (max / scale)) : (max / scale);
@@ -407,33 +423,39 @@ void Plot::plot(DispSegment* ds, signed* lv, uint8_t qnt)
 
   int range = inp_max - inp_min;
   
-  uy_tick_shift = ds->get_num_string_size_px(inp_max, font8);
-  by_tick_shift = ds->get_num_string_size_px(inp_min, font8);
+  x_tick_shift = ds->get_num_string_size_px(qnt > wp ? wp : qnt, *f);
+  y_tick_shift = ds->get_num_string_size_px(inp_max, *f);
 
 
-  y_axis_shift = uy_tick_shift > by_tick_shift ? uy_tick_shift : by_tick_shift;
-  uy_tick_shift = y_axis_shift - uy_tick_shift;
-  by_tick_shift = y_axis_shift - by_tick_shift;
-  y_axis_shift++;
 
 
-  signed val;
+
+
   uint8_t px_out;
 
 
   ds->draw_box(x, y-h+1, w, h, false);
-  ds->write_num_sign(by_tick_shift, ds->shp-8, inp_min, font8);
-  ds->write_num_sign(uy_tick_shift, 0, inp_max, font8);
+
+  ds->write_num(x0 + 3, y0 + 3, 0, *f);
+  ds->write_num(w - x_tick_shift, y0 + 3, qnt > wp ? wp : qnt, *f);
+
+  
+  ds->set_text_vertical_mode();
+  ds->write_num(0, y_tick_shift, inp_min, *f);
+  ds->write_num(0, 63, inp_max, *f);
+  ds->set_text_horizontal_mode();
+
 
  
-  ds->draw_vline(x+y_axis_shift+1, y-h+1, h);   // y axis
+  ds->draw_vline(x0-1, 0, h);   // y axis
+  //ds->draw_hline(7, font_dig5.height, w);   // upper border
+  ds->draw_hline(x0-1, y0+1, wp);   // bottom border
 
 
   for(uint8_t i = 0; i< qnt; i++)
   {
-    val = *(lv+i);
-    px_out = ((val - min) * h) / range;
-    ds->draw_pixel(i+1+y_axis_shift, y - px_out + 1);
+    px_out = (((*(lv+i)) - min) * hp) / range;
+    ds->draw_pixel(i+x0, y0 - px_out);
   }
 
   
