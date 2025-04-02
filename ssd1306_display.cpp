@@ -270,6 +270,27 @@ void DispSegment::write_num(uint8_t x_px, uint8_t y_px, signed num, Font &font, 
 
 
 
+
+/**
+ * @brief Write numerical with space or minus sign to the specified place in display segment
+ * 
+ * @param x_px                        x coordinate in px
+ * @param y_px                        y coordinate in px
+ * @param num                         num to be displayed
+ * @param font                        font that determines clear height
+ * @param color_noinv                 (optional, def = true) determines color no inversion
+ */
+void DispSegment::write_num_sign(uint8_t x_px, uint8_t y_px, signed num, Font &font, bool color_noinv)
+{
+  char sbuf[10];
+  sprintf(sbuf, "% d", num);
+
+  write_string(x_px, y_px, sbuf, font, color_noinv);
+}
+
+
+
+
 /**
  * @brief Write numerical to the specified place in display segment. Shows it IMMEDIATLY
  * 
@@ -355,6 +376,30 @@ uint8_t DispSegment::get_string_size_px(const char* str, Font &font)
   
   return size_px - font.interval;
 }
+
+
+
+
+
+/**
+* @brief Returns size of the specified number, written in specified font, in pixels
+* @param[in] num                       number
+* @param[in] font                      font
+*/
+uint8_t DispSegment::get_num_string_size_px(signed num, Font &font)
+{
+  char sbuf[10];
+  char* sbuf_ptr = sbuf;
+  sprintf(sbuf, "% d", num);
+
+  uint8_t size_px = 0;
+  
+  while (*sbuf_ptr) 
+    size_px += font.get_symbol_width(*sbuf_ptr++) + font.interval;
+  
+  return size_px - font.interval;
+}
+
 
 
 

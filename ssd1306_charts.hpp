@@ -39,3 +39,35 @@ class BarChart
     static void draw(DispSegment* segment, signed* nv, uint8_t charts_num, uint8_t spaceing_px);
     static void draw(DispSegment* segment, signed* nv, uint8_t charts_num, uint8_t spaceing_px, signed input_min, signed input_max);
 };
+
+
+
+
+class Plot
+{
+    public:
+
+    typedef enum {BOTTOM, CENTER, TOP} XAXIS_INDENT;
+    typedef enum {LEFT, MIDDLE, RIGHT} YAXIS_INDENT;
+
+    private:
+
+    DispSegment* ds;        // pointer to display segment
+    signed* lv;             // last plot values 
+
+    uint8_t x, y;           // base coordinates (px)
+    uint8_t w, h;           // plot width and height (px)
+    uint8_t x0, y0;         // Plot zero coordinates (px)
+
+
+    XAXIS_INDENT xind;
+    YAXIS_INDENT yind;
+    
+    public:
+    Plot();
+    Plot(DispSegment* segment, uint8_t x_px, uint8_t y_px, uint8_t width_px, uint8_t height_px, XAXIS_INDENT xind, YAXIS_INDENT yind);
+    void show();
+
+    static void plot(DispSegment* ds, signed* lv, uint8_t qnt);
+};
+

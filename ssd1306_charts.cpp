@@ -1,7 +1,6 @@
 #include "ssd1306_charts.hpp"
 
 
-
 /**
  * @brief Construct a new empty Bar Chart
  */
@@ -233,5 +232,214 @@ void BarChart::draw(DispSegment* segment, signed* nv, uint8_t charts_num, uint8_
 void BarChart::draw(DispSegment* segment, signed* nv, uint8_t charts_num, uint8_t spaceing_px)
 {
   BarChart::draw(segment, nv, charts_num, spaceing_px, 0, 100);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// class Plot
+// {
+//     public:
+
+//     typedef enum {BOTTOM, MIDDLE, TOP} XAXIS_INDENT;
+//     typedef enum {LEFT, MIDDLE, RIGHT} YAXIS_INDENT;
+
+//     private:
+
+//     DispSegment* ds;        // pointer to display segment
+
+//     uint8_t x, y;           // base coordinates (px)
+//     uint8_t w, h;           // plot width and height (px)
+
+//     XAXIS_INDENT xind;
+//     YAXIS_INDENT yind;
+    
+//     public:
+//     Plot(DispSegment* segment, uint8_t x_px, uint8_t y_px, uint8_t width_px, uint8_t height_px, XAXIS_INDENT xind, YAXIS_INDENT yind);
+//     void show();
+// }
+
+
+
+/**
+ * @brief Construct a new empty Bar Chart
+ */
+Plot::Plot(){
+  Plot((DispSegment*)0, 0, 0, 0, 0, (XAXIS_INDENT)0, (YAXIS_INDENT)0);}
+
+
+Plot::Plot(DispSegment* segment, uint8_t x_px, uint8_t y_px, uint8_t width_px, uint8_t height_px, XAXIS_INDENT x_indent, YAXIS_INDENT y_indent) : 
+ds(segment), 
+x(x_px), y(y_px),
+w(width_px), h(height_px),
+xind(x_indent), yind(y_indent)
+{
+  switch (xind)
+  {
+    case BOTTOM:
+    y0 = y;
+    break;
+
+    case CENTER:
+    y0 = y-h/2;
+    break;
+
+    case TOP:
+    y0 = y-h+1;
+    break;
+  }
+
+
+  switch (yind)
+  {
+    case LEFT:
+    x0 = x;
+    break;
+
+    case MIDDLE:
+    x0 = x+w/2;
+    break;
+
+    case RIGHT:
+    x0 = x+w-1;
+    break;
+  } 
+}
+
+
+void Plot::show()
+{
+  ds->draw_box(x, y-h+1, w, h, false);
+
+  ds->draw_hline(x, y0, w);       // x axis
+  ds->draw_vline(x0, y-h+1, h);   // y axis
+
+  ds->update_part(x, y-h+1, x+w-1, y);
+  //ds->update();
+}
+
+
+
+
+unsigned find_scale(unsigned origin_scale)
+{
+  static const unsigned pattern_scale_k[3] = {1, 2, 5};
+
+  int pattern_scale_mult = 1;
+  int pattern_scale = 1;
+
+  while(1)
+  {
+    for(uint8_t i = 0; i<3; i++)
+    {
+      pattern_scale = pattern_scale_mult * pattern_scale_k[i];
+
+      if (origin_scale <= pattern_scale)
+        return pattern_scale;
+    }
+    pattern_scale_mult *= 10;
+  }
+}
+
+
+
+void Plot::plot(DispSegment* ds, signed* lv, uint8_t qnt)
+{
+
+  uint8_t y_axis_shift;
+
+  uint8_t uy_tick_shift;
+  uint8_t by_tick_shift;
+
+
+
+  uint8_t x = 0;
+  uint8_t y = ds->shp - 1;
+
+  uint8_t w = ds->sw;
+  uint8_t h = ds->shp;
+
+
+  signed min, max = lv[0];
+
+  for(uint8_t i=1; i<qnt; i++)
+  {
+    if(min > lv[i])
+      min = lv[i];
+
+     if(max < lv[i])
+      max = lv[i];
+  }
+
+
+
+  int inp_max;
+  int inp_min;
+  int scale, scale_min, scale_max;
+  int k;
+
+
+  scale = find_scale((max - min) / h);
+
+
+  k = (max > 0) ? ((max % scale != 0) ? ((max / scale) + 1) : (max / scale)) : (max / scale);
+  inp_max = scale * k;
+
+
+  k = (min < 0) ? ((max % scale != 0) ? ((min / scale) - 1) : (min / scale)) : (min / scale);
+  inp_min = scale * k;
+
+
+  int range = inp_max - inp_min;
+  
+  uy_tick_shift = ds->get_num_string_size_px(inp_max, font8);
+  by_tick_shift = ds->get_num_string_size_px(inp_min, font8);
+
+
+  y_axis_shift = uy_tick_shift > by_tick_shift ? uy_tick_shift : by_tick_shift;
+  uy_tick_shift = y_axis_shift - uy_tick_shift;
+  by_tick_shift = y_axis_shift - by_tick_shift;
+  y_axis_shift++;
+
+
+  signed val;
+  uint8_t px_out;
+
+
+  ds->draw_box(x, y-h+1, w, h, false);
+  ds->write_num_sign(by_tick_shift, ds->shp-8, inp_min, font8);
+  ds->write_num_sign(uy_tick_shift, 0, inp_max, font8);
+
+ 
+  ds->draw_vline(x+y_axis_shift+1, y-h+1, h);   // y axis
+
+
+  for(uint8_t i = 0; i< qnt; i++)
+  {
+    val = *(lv+i);
+    px_out = ((val - min) * h) / range;
+    ds->draw_pixel(i+1+y_axis_shift, y - px_out + 1);
+  }
+
+  
+
+
+  ds->update();
+
 }
 

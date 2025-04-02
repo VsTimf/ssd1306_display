@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stm32g0xx.h>                // Specify HAL Library for your controller
+#include <stm32_cmsis.h>                // Include HAL Library for your mcu (#include <stm32g0xx.h> for example) in this header file 
 
 
 class SSD1306_LL_INTERFACE

@@ -95,12 +95,14 @@ class DispSegment
     void write_string(uint8_t x_px, uint8_t y_px, const char* str, Font &font, bool color_noinv = true);
     void write_string_now(uint8_t x_px, uint8_t y_px, const char* str, Font &font, bool color_noinv = true);
     void write_num(uint8_t x_px, uint8_t y_px, signed num, Font &font, bool color_noinv = true);
+    void write_num_sign(uint8_t x_px, uint8_t y_px, signed num, Font &font, bool color_noinv = true);
     void write_num_now(uint8_t x_px, uint8_t y_px, signed num, Font &font, bool color_noinv = true);
 
     void clear_font_px(uint8_t x_px, uint8_t y_px, uint8_t sz_px, Font &font, bool color_noinv = true);
     void clear_font_symb(uint8_t x_px, uint8_t y_px, uint8_t sz_symb, Font &font, bool color_noinv = true);
     void clear_font_row(uint8_t y_px, Font &font, bool color_noinv = true);
     uint8_t get_string_size_px(const char* str, Font &font);
+    uint8_t get_num_string_size_px(signed num, Font &font);
 
     
     void draw_hline(uint8_t x_px, uint8_t y_px, uint8_t w_px, bool color_noinv = true);
@@ -232,12 +234,14 @@ public:
     inline void write_string(uint8_t x_px, uint8_t y_px, const char* str, Font &font, bool color_noinv = true) {dds->write_string(x_px, y_px, str, font, color_noinv);}
     inline void write_string_now(uint8_t x_px, uint8_t y_px, const char* str, Font &font, bool color_noinv = true) {dds->write_string_now(x_px, y_px, str, font, color_noinv);}
     inline void write_num(uint8_t x_px, uint8_t y_px, signed num, Font &font, bool color_noinv = true){dds->write_num(x_px, y_px, num,font,color_noinv);}
+    inline void write_num_sign(uint8_t x_px, uint8_t y_px, signed num, Font &font, bool color_noinv = true){dds->write_num_sign(x_px, y_px, num,font,color_noinv);}
     inline void write_num_now(uint8_t x_px, uint8_t y_px, signed num, Font &font, bool color_noinv = true){dds->write_num_now(x_px, y_px, num,font,color_noinv);}
 
     inline void clear_font_px(uint8_t x_px, uint8_t y_px, uint8_t sz_px, Font &font, bool color_noinv = true){dds->clear_font_px(x_px, y_px, sz_px, font, color_noinv);}
     inline void clear_font_symb(uint8_t x_px, uint8_t y_px, uint8_t sz_symb, Font &font, bool color_noinv = true){dds->clear_font_symb(x_px, y_px, sz_symb, font, color_noinv);}
     inline void clear_font_row(uint8_t y_px, Font &font, bool color_noinv = true){dds->clear_font_row(y_px, font, color_noinv);}
     inline uint8_t get_string_size_px(char* str, Font &font){return dds->get_string_size_px(str, font);}
+    inline uint8_t get_num_string_size_px(signed num, Font &font){return dds->get_num_string_size_px(num, font);}
 
     void draw_hline(uint8_t x_px, uint8_t y_px, uint8_t w_px, bool color_noinv = true){dds->draw_hline(x_px, y_px, w_px, color_noinv);}
     void draw_vline(uint8_t x_px, uint8_t y_px, uint8_t h_px, bool color_noinv = true){dds->draw_vline(x_px, y_px, h_px, color_noinv);} 
