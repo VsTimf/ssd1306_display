@@ -1,10 +1,11 @@
 /**
   ******************************************************************************
   * @brief   SSD1306 fonts
-  * There are 3 fonts implemented in this driver: 
+  * There are 4 fonts implemented in this driver: 
+  *      - font5:       5px height Windows-1251;
   *      - font8:       8px height Windows-1251;
   *      - font16:      16px height Windows-1251;
-  *      - font_dig32:  32px height digits only font.
+  *      - font_dig32:  29px height digits only font.
 
                         ##### How to create your own fonts #####
   ==============================================================================

@@ -8,8 +8,8 @@ Library is written for the STM32 MCU, but may be ported to any other MCU by modi
 - Connect up to 3 displays simultaneously
 - Update entire display or any part of it independenly - create layouts
 - Draw primitives (pixels, lines, squares, circles)
-- Draw text (Windows 1251 fonts included)
-- Draw GUI primitives (items, progressbars, charts)
+- Draw text (Windows 1251 fonts included: 5px, 8px & 16px font height)
+- Draw GUI primitives (items, progressbars, charts & plots)
 - Select menu items (draw arrow near selected item or inverse item color)
 - Draw bitmap pictures
 
@@ -42,7 +42,7 @@ All this allows independly use segments, update and redraw them.
 - ssd1306_display.cpp (.hpp)        - main part, implements all draw features
 - ssd1306_fonts.cpp (.hpp)          - contains embedded fonts
 - ssd1306_bitmaps.cpp (.hpp)        - contains class definition for bitmap pictures
-- ssd1306_charts.cpp (.hpp)         - contains graphics charts (only bar chart implemented at the moment)
+- ssd1306_charts.cpp (.hpp)         - contains graphics charts (bar charts and simple plots)
 - ssd1306_tests.cpp (.hpp)          - contains tests and use-cases
 
 
@@ -51,12 +51,14 @@ All this allows independly use segments, update and redraw them.
 1. Each display requires heap memory allocation for graphics data so make sure that heap size in your project is sufficient.
     You can calculate the memory size as follows: MEM_SZ = DISP_WIDTH * DISP_HEIGTH / 8
 
-2. Include `ssd1306.hpp` into your project and specify HAL Library for your controller in "ssd1306_ll_interface.hpp" file (`#include <stm32g0xx.h>` for example)
+2. Include `ssd1306.hpp` into your project.
+   
+3. Create and add `stm32_cmsis.h` file to your project. It must contain HAL Library `#inlude` for your controller (`#include <stm32g0xx.h>` for example)
 
-3. Create Display object and init it:
+4. Create Display object and init it:
    
    ```
-   #include "ssd1306_display.hpp"
+   #include "ssd1306.hpp"
 
    SSD1306_Display* display;
 
@@ -64,7 +66,7 @@ All this allows independly use segments, update and redraw them.
    display->init(SSD1306_MIRROR_VERT::SSD1306_MIRROR_VERT_ON, SSD1306_MIRROR_HORIZ::SSD1306_MIRROR_HORIZ_ON);
    ```
 
-4. Use library 
+5. Use library 
    
    * You can use it without any layouts, for example:
     
