@@ -64,10 +64,14 @@ class Plot
     YAXIS_INDENT yind;
     
     public:
-    Plot();
-    Plot(DispSegment* segment, uint8_t x_px, uint8_t y_px, uint8_t width_px, uint8_t height_px, XAXIS_INDENT xind, YAXIS_INDENT yind);
-    void show();
+    //Plot();
+   // Plot(DispSegment* segment, uint8_t x_px, uint8_t y_px, uint8_t width_px, uint8_t height_px, XAXIS_INDENT xind, YAXIS_INDENT yind);
+   // void show();
 
-    static void plot(DispSegment* ds, signed* lv, uint8_t qnt);
+    static void plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed xmin, signed xmax, signed ymin, signed ymax, char* xtitle, char* ytitle);
+    static void plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed xmin, signed xmax, signed ymin, signed ymax);
+    static void plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed ymin, signed ymax, char* xtitle, char* ytitle);
+    static void plot(DispSegment* ds, signed* data, uint8_t data_qnt, char* xtitle, char* ytitle);
+    static void plot(DispSegment* ds, signed* data, uint8_t data_qnt);
 };
 

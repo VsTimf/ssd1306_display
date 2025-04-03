@@ -276,66 +276,15 @@ void BarChart::draw(DispSegment* segment, signed* nv, uint8_t charts_num, uint8_
 
 
 
+
+
+
 /**
- * @brief Construct a new empty Bar Chart
+ * @brief Calculates aligned scale for y-axis
+ * 
+ * @param origin_scale                // Original scale, based on input raw data
+ * @return unsigned                   // returns aligned scale
  */
-Plot::Plot(){
-  Plot((DispSegment*)0, 0, 0, 0, 0, (XAXIS_INDENT)0, (YAXIS_INDENT)0);}
-
-
-Plot::Plot(DispSegment* segment, uint8_t x_px, uint8_t y_px, uint8_t width_px, uint8_t height_px, XAXIS_INDENT x_indent, YAXIS_INDENT y_indent) : 
-ds(segment), 
-x(x_px), y(y_px),
-w(width_px), h(height_px),
-xind(x_indent), yind(y_indent)
-{
-  switch (xind)
-  {
-    case BOTTOM:
-    y0 = y;
-    break;
-
-    case CENTER:
-    y0 = y-h/2;
-    break;
-
-    case TOP:
-    y0 = y-h+1;
-    break;
-  }
-
-
-  switch (yind)
-  {
-    case LEFT:
-    x0 = x;
-    break;
-
-    case MIDDLE:
-    x0 = x+w/2;
-    break;
-
-    case RIGHT:
-    x0 = x+w-1;
-    break;
-  } 
-}
-
-
-void Plot::show()
-{
-  ds->draw_box(x, y-h+1, w, h, false);
-
-  ds->draw_hline(x, y0, w);       // x axis
-  ds->draw_vline(x0, y-h+1, h);   // y axis
-
-  ds->update_part(x, y-h+1, x+w-1, y);
-  //ds->update();
-}
-
-
-
-
 unsigned find_scale(unsigned origin_scale)
 {
   static const unsigned pattern_scale_k[3] = {1, 2, 5};
@@ -358,42 +307,45 @@ unsigned find_scale(unsigned origin_scale)
 
 
 
-void Plot::plot(DispSegment* ds, signed* data, uint8_t qnt)
+/**
+ * @brief 
+ * 
+ * @param ds                          // display segment
+ * @param data_qnt                    // amount of data to plot
+ * @param xmin                        // pointer to variable to save calculated xmin
+ * @param xmax                        // pointer to variable to save calculated xmax
+ */
+static void calc_x_limits(DispSegment* ds, uint8_t data_qnt, signed* xmin, signed* xmax)
 {
-  // widjet dimensions
-  uint8_t x = 0;
-  uint8_t y = ds->shp - 1;
+  uint8_t wp = ds->sw - (font5.height + 3) + 1;
 
-  uint8_t w = ds->sw;
-  uint8_t h = ds->shp;
+  *xmin = 0;
+  *xmax = (data_qnt > wp) ? wp : data_qnt;
+}
 
 
-  // plot dimensions
-  uint8_t x0 = x + font5.height + 3;
-  uint8_t y0 = y - font5.height - 3;
 
-  uint8_t wp = w - x0 + 1;
-  uint8_t hp = y0 + 1;
-
-  
-
-  // data value expressed in pixels
-  uint8_t px_out;
+/**
+ * @brief Calculates y limits for plot
+ * 
+ * @param ds                          // display segment
+ * @param data                        // data to plot
+ * @param data_qnt                    // amount of data to plot
+ * @param ymin                        // pointer to variable to save calculated ymin
+ * @param ymax                        // pointer to variable to save calculated ymax
+ */
+static void calc_y_limits(DispSegment* ds, signed* data, uint8_t data_qnt, signed* ymin, signed* ymax)
+{
+  uint8_t hp = ((ds->shp - 1) - font5.height - 3) + 1;
 
   // Real min, max values of input data
   signed imin = data[0];
   signed imax = data[0];
 
-  // min, max of y-axis
-  int inp_min;
-  int inp_max;
-
   int scale;                      // scale of y-axis
   int k;                          // support variable
 
-
-  
-  for(uint8_t i=1; i<qnt; i++)
+  for(uint8_t i=1; i < data_qnt; i++)
   {
     if(imin > data[i])
       imin = data[i];
@@ -407,57 +359,152 @@ void Plot::plot(DispSegment* ds, signed* data, uint8_t qnt)
 
 
   k = (imax > 0) ? ((imax % scale != 0) ? ((imax / scale) + 1) : (imax / scale)) : (imax / scale);
-  inp_max = scale * k;
+  *ymax = scale * k;
 
 
   k = (imin < 0) ? ((imax % scale != 0) ? ((imin / scale) - 1) : (imin / scale)) : (imin / scale);
-  inp_min = scale * k;
+  *ymin = scale * k;
+}
 
 
-  int range = inp_max - inp_min;
+
+
+/**
+ * @brief Draws plot in the specified display segment. Auto scale. No titles
+ * 
+ * @param ds                          // display segment
+ * @param data                        // data to plot
+ * @param data_qnt                    // amount of data to plot
+ */
+void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt){
+  plot(ds, data, data_qnt, (char*)0, (char*)0);
+}
+
+
+
+/**
+ * @brief Draws plot in the specified display segment. Auto scale
+ * 
+ * @param ds                          // display segment
+ * @param data                        // data to plot
+ * @param data_qnt                    // amount of data to plot
+ * @param xtitle                      // x-title
+ * @param ytitle                      // y-title
+ */
+void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt, char* xtitle, char* ytitle)
+{
+  signed xmin, xmax, ymin, ymax;
+
+  calc_x_limits(ds, data_qnt, &xmin, &xmax);
+  calc_y_limits(ds, data, data_qnt, &ymin, &ymax);
+
+  plot(ds, data, data_qnt, xmin, xmax, ymin, ymax, xtitle, ytitle);
+}
+
+
+
+/**
+ * @brief Draws plot in the specified display segment. Auto x scale
+ * 
+ * @param ds                          // display segment
+ * @param data                        // data to plot
+ * @param data_qnt                    // amount of data to plot
+ * @param ymin                        // y-axis min
+ * @param ymax                        // y-axis max
+ * @param xtitle                      // x-title
+ * @param ytitle                      // y-title
+ */
+void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed ymin, signed ymax, char* xtitle, char* ytitle)
+{
+  signed xmin, xmax;
+
+  calc_x_limits(ds, data_qnt, &xmin, &xmax);
+  plot(ds, data, data_qnt, xmin, xmax, ymin, ymax, xtitle, ytitle);
+}
+
+
+
+/**
+ * @brief Draws plot in the specified display segment. No titles
+ * 
+ * @param ds                          // display segment
+ * @param data                        // data to plot
+ * @param data_qnt                    // amount of data to plot
+ * @param xmin                        // x-axis min
+ * @param xmax                        // x-axis max
+ * @param ymin                        // y-axis min
+ * @param ymax                        // y-axis max
+ */
+void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed xmin, signed xmax, signed ymin, signed ymax){
+  plot(ds, data, data_qnt, xmin, xmax, ymin, ymax, (char*)0, (char*)0);
+}
+
+
+
+/**
+ * @brief Draws plot in the specified display segment
+ * 
+ * @param ds                          // display segment
+ * @param data                        // data to plot
+ * @param data_qnt                    // amount of data to plot
+ * @param xmin                        // x-axis min
+ * @param xmax                        // x-axis max
+ * @param ymin                        // y-axis min
+ * @param ymax                        // y-axis max
+ * @param xtitle                      // x-title
+ * @param ytitle                      // y-title
+ */
+void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed xmin, signed xmax, signed ymin, signed ymax, char* xtitle, char* ytitle)
+{
+  // widjet dimensions
+  uint8_t w = ds->sw;
+  uint8_t h = ds->shp;
+
+  // plot dimensions
+  uint8_t x0 = font5.height + 3;
+  uint8_t y0 = (ds->shp - 1) - font5.height - 3;
+
+  uint8_t wp = w - x0 + 1;
+  uint8_t hp = y0 + 1;
+
   
+  ds->clear();
 
-
-
-
-
-
-  ds->draw_box(x, y-h+1, w, h, false);
-
-
-  char xtitle[10] = "CHANNEL 1";
-  ds->write_string(x0 + (w - x0)/2 - ds->get_string_size_px(xtitle, font5)/2, y0+3, xtitle, font5);
+  // x labels
+  if(xtitle)
+    ds->write_string(x0 + (w - x0)/2 - ds->get_string_size_px(xtitle, font5)/2, y0+3, xtitle, font5);
 
   ds->write_num(x0 + 3, y0 + 3, 0, font5);
-  ds->write_num(w - ds->get_num_string_size_px(qnt > wp ? wp : qnt, font5), y0 + 3, qnt > wp ? wp : qnt, font5);
+  ds->write_num(w - ds->get_num_string_size_px(xmax, font5), y0 + 3, xmax, font5);
 
 
-  char ytitle[10] = "Hz";
-
+ // y labels
   ds->set_text_vertical_mode();
-  ds->write_string(0, h/2 + ds->get_string_size_px(ytitle, font5)/2, ytitle, font5);
-  ds->write_num(0, ds->get_num_string_size_px(inp_max, font5), inp_max, font5);
-  ds->write_num(0, 63, inp_min, font5);
+  if(ytitle)
+    ds->write_string(0, h/2 + ds->get_string_size_px(ytitle, font5)/2, ytitle, font5);
+  ds->write_num(0, ds->get_num_string_size_px(ymax, font5), ymax, font5);
+  ds->write_num(0, 63, ymin, font5);
   ds->set_text_horizontal_mode();
 
 
- 
 
   ds->draw_hline(x0-1, y0+1, wp);    // x axis
   ds->draw_vline(x0-1, 0, h);        // y axis
   
 
-
-  for(uint8_t i = 0; i< qnt; i++)
+  signed range = ymax - ymin;                           // input range
+  uint8_t px_out;                                       // data value expressed in pixels
+  signed inp_val;
+  for(uint8_t i = 0; i < data_qnt; i++)
   {
-    px_out = (((*(data+i)) - imin) * (hp-1)) / range;
-    ds->draw_pixel(i+x0, y0 - px_out);
+    inp_val = *(data+i);
+    if((inp_val > ymin) && (inp_val < ymax))
+    {
+      px_out = ((inp_val - ymin) * (hp-1)) / range;
+      ds->draw_pixel(i+x0, y0 - px_out);
+    }
   }
 
-  
-
-
   ds->update();
-
 }
 
