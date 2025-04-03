@@ -358,11 +358,8 @@ unsigned find_scale(unsigned origin_scale)
 
 
 
-void Plot::plot(DispSegment* ds, signed* lv, uint8_t qnt)
+void Plot::plot(DispSegment* ds, signed* data, uint8_t qnt)
 {
-  //font
-  Font* f = &font5;
-
   // widjet dimensions
   uint8_t x = 0;
   uint8_t y = ds->shp - 1;
@@ -372,89 +369,88 @@ void Plot::plot(DispSegment* ds, signed* lv, uint8_t qnt)
 
 
   // plot dimensions
-  uint8_t x0 = x + f->height + 2;
-  uint8_t y0 = y - f->height - 2;
+  uint8_t x0 = x + font5.height + 3;
+  uint8_t y0 = y - font5.height - 3;
 
   uint8_t wp = w - x0 + 1;
   uint8_t hp = y0 + 1;
 
   
 
+  // data value expressed in pixels
+  uint8_t px_out;
 
-  uint8_t y_tick_shift;
-  uint8_t x_tick_shift;
+  // Real min, max values of input data
+  signed imin = data[0];
+  signed imax = data[0];
+
+  // min, max of y-axis
+  int inp_min;
+  int inp_max;
+
+  int scale;                      // scale of y-axis
+  int k;                          // support variable
 
 
-
-
-
-
-
-  signed min = lv[0];
-  signed max = lv[0];
-
+  
   for(uint8_t i=1; i<qnt; i++)
   {
-    if(min > lv[i])
-      min = lv[i];
+    if(imin > data[i])
+      imin = data[i];
 
-     if(max < lv[i])
-      max = lv[i];
+    if(imax < data[i])
+      imax = data[i];
   }
 
 
-
-  int inp_max;
-  int inp_min;
-  int scale;
-  int k;
+  scale = find_scale((imax - imin) / hp);
 
 
-  scale = find_scale((max - min) / hp);
-
-
-  k = (max > 0) ? ((max % scale != 0) ? ((max / scale) + 1) : (max / scale)) : (max / scale);
+  k = (imax > 0) ? ((imax % scale != 0) ? ((imax / scale) + 1) : (imax / scale)) : (imax / scale);
   inp_max = scale * k;
 
 
-  k = (min < 0) ? ((max % scale != 0) ? ((min / scale) - 1) : (min / scale)) : (min / scale);
+  k = (imin < 0) ? ((imax % scale != 0) ? ((imin / scale) - 1) : (imin / scale)) : (imin / scale);
   inp_min = scale * k;
 
 
   int range = inp_max - inp_min;
   
-  x_tick_shift = ds->get_num_string_size_px(qnt > wp ? wp : qnt, *f);
-  y_tick_shift = ds->get_num_string_size_px(inp_max, *f);
 
 
 
 
-
-
-  uint8_t px_out;
 
 
   ds->draw_box(x, y-h+1, w, h, false);
 
-  ds->write_num(x0 + 3, y0 + 3, 0, *f);
-  ds->write_num(w - x_tick_shift, y0 + 3, qnt > wp ? wp : qnt, *f);
 
-  
+  char xtitle[10] = "CHANNEL 1";
+  ds->write_string(x0 + (w - x0)/2 - ds->get_string_size_px(xtitle, font5)/2, y0+3, xtitle, font5);
+
+  ds->write_num(x0 + 3, y0 + 3, 0, font5);
+  ds->write_num(w - ds->get_num_string_size_px(qnt > wp ? wp : qnt, font5), y0 + 3, qnt > wp ? wp : qnt, font5);
+
+
+  char ytitle[10] = "Hz";
+
   ds->set_text_vertical_mode();
-  ds->write_num(0, y_tick_shift, inp_min, *f);
-  ds->write_num(0, 63, inp_max, *f);
+  ds->write_string(0, h/2 + ds->get_string_size_px(ytitle, font5)/2, ytitle, font5);
+  ds->write_num(0, ds->get_num_string_size_px(inp_max, font5), inp_max, font5);
+  ds->write_num(0, 63, inp_min, font5);
   ds->set_text_horizontal_mode();
 
 
  
-  ds->draw_vline(x0-1, 0, h);   // y axis
-  //ds->draw_hline(7, font_dig5.height, w);   // upper border
-  ds->draw_hline(x0-1, y0+1, wp);   // bottom border
+
+  ds->draw_hline(x0-1, y0+1, wp);    // x axis
+  ds->draw_vline(x0-1, 0, h);        // y axis
+  
 
 
   for(uint8_t i = 0; i< qnt; i++)
   {
-    px_out = (((*(lv+i)) - min) * hp) / range;
+    px_out = (((*(data+i)) - imin) * (hp-1)) / range;
     ds->draw_pixel(i+x0, y0 - px_out);
   }
 
