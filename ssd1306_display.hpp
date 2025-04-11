@@ -89,6 +89,7 @@ class DispSegment
 
     void clear(bool color_noinv = true);
     void clear_row(uint8_t y_px, bool color_noinv = true);
+    void clear_part(uint8_t xs_px, uint8_t ys_px, uint8_t xe_px, uint8_t ye_px, bool color_noinv = true);
 
     void draw_pixel(uint8_t x_px, uint8_t y_px, bool pix_en = true);
 
@@ -161,9 +162,9 @@ class DispLayout
     DispLayout(uint8_t layout_id, SSD1306_Display& display, uint8_t* const gram_ptr, unsigned gram_size) : id(layout_id), disp(display), gram(gram_ptr) {gram_available = gram_size; curr_segment_gram_ptr = gram_ptr;}
 
     public:
-    static DispLayout* create_layout(SSD1306_Display& display);
-
     DispSegment* create_segment(SSD1306_ADDR_MODE addr_mode, uint8_t col_start_px, uint8_t page_start_pg, uint8_t col_end_px, uint8_t page_end_pg);
+
+    static DispLayout* create_layout(SSD1306_Display& display);
 };
 
 
@@ -220,6 +221,8 @@ public:
     
     void init(SSD1306_MIRROR_VERT v_mirror, SSD1306_MIRROR_HORIZ h_mirror);
     inline DispLayout* create_layout(void){ return DispLayout::create_layout(*this);}
+    inline DispSegment* create_segment(DispLayout* layout, SSD1306_ADDR_MODE addr_mode, uint8_t col_start_px, uint8_t page_start_pg, uint8_t col_end_px, uint8_t page_end_pg)
+        {return layout->create_segment(addr_mode, col_start_px, page_start_pg, col_end_px, page_end_pg);}
 
    
 
@@ -230,8 +233,9 @@ public:
 
 
 
-    inline void clear_screen(void){dds->clear(); update_screen();}
+    inline void clear_screen(bool color_noinv = true){dds->clear(color_noinv); update_screen();}
     inline void clear_row(uint8_t y_pg, bool color_noinv = true){dds->clear_row(y_pg, color_noinv);}
+    inline void clear_part(uint8_t xs_px, uint8_t ys_px, uint8_t xe_px, uint8_t ye_px, bool color_noinv = true){dds->clear_part(xs_px, ys_px, xe_px, ye_px, color_noinv);}
     inline void draw_pixel(uint8_t x_px, uint8_t y_px, bool color_noinv = true){dds->draw_pixel(x_px, y_px, color_noinv);}
     inline void set_cursor(uint8_t x, uint8_t y){dds->set_cursor(x, y);}
 

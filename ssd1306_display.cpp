@@ -63,12 +63,6 @@ DispSegment* DispLayout::create_segment(SSD1306_ADDR_MODE addr_mode, uint8_t col
   if(segments_qnt == 10)
     while(1);                                                                 // to many segments 
 
-  if(addr_mode == SSD1306_ADDR_MODE::PAGE)                                    // According to PDF on SSD1306
-  {
-    page_end_pg = page_start_pg;
-    col_end_px = disp.WIDTH_PX;
-  }
-
   if(col_start_px > col_end_px || col_end_px >= disp.WIDTH_PX)
     while(1);
 
@@ -97,8 +91,10 @@ DispSegment* DispLayout::create_segment(SSD1306_ADDR_MODE addr_mode, uint8_t col
 */
 void DispSegment::clear(bool color_noinv)
 {
+  uint8_t mask = color_noinv ? 0x00 : 0xFF;
+
   for(unsigned i = 0; i < segment_sz; i++)
-    gram[i] = (color_noinv == true) ? 0x00 : 0xFF;
+    gram[i] = mask;
 }
 
 
@@ -115,19 +111,103 @@ void DispSegment::clear_row(uint8_t y_pg, bool color_noinv)
   if(y_pg > SSD1306_PROW_INDEXES::PROW8)
     return;
 
+  uint8_t mask = color_noinv ? 0x00 : 0xFF;
+
   if(addr_mode == SSD1306_ADDR_MODE::VERTICAL)
   {
     for(unsigned idx = 0; idx < sw; idx++)
-      gram[idx*sh + y_pg] = (color_noinv) ? 0x00 : 0xFF;
+      gram[idx*sh + y_pg] = mask;
   }
   else
   {
     for(unsigned idx = 0; idx < sw; idx++)
-      gram[y_pg*sw + idx] = (color_noinv) ? 0x00 : 0xFF;
+      gram[y_pg*sw + idx] = mask;
   }
   
   update_part(0, y_pg*SSD1306_PAGE_SIZE, sw-1, y_pg*SSD1306_PAGE_SIZE);
 }
+
+
+
+
+
+/**
+* @brief Clears part of the specified display area 
+* 
+* @param[in] xs_px                    x start area coordinate in px
+* @param[in] ys_px                    y start area coordinate in px
+* @param[in] xe_px                    x end area coordinate in px
+* @param[in] ye_px                    y end area coordinate in px
+ */
+void DispSegment::clear_part(uint8_t xs_px, uint8_t ys_px, uint8_t xe_px, uint8_t ye_px, bool color_noinv)
+{
+ 
+  if(addr_mode == SSD1306_ADDR_MODE::PAGE)
+  {
+    if((xs_px > xe_px || xs_px > sw || xe_px > sw) || (ys_px > SSD1306_PROW_INDEXES::PROW8))
+      while(1);
+
+    uint8_t  mask = color_noinv ? ~((0xFF << (ys_px%8)) & (0xFF >> (7-(ye_px%8)))) : ((0xFF << (ys_px%8)) & (0xFF >> (7-(ye_px%8))));
+
+    for (unsigned i = xs_px; i <= xe_px; i++)
+      gram[i] &= mask;
+  }
+  else
+  {
+    if((xs_px > xe_px || xs_px > sw || xe_px > sw) || (ys_px > ye_px || ys_px > shp || ye_px > shp))
+      while(1);
+
+    uint8_t start_page = ((ys_px+1)>>3) + (((ys_px+1)%8)!=0) - 1;
+    uint8_t end_page = ((ye_px+1)>>3) + (((ye_px+1)%8)!=0) - 1;
+    uint8_t mask;
+    
+    if(addr_mode == SSD1306_ADDR_MODE::HORIZONTAL)
+    {
+
+      if(start_page == end_page)
+      {
+        mask = color_noinv ? ~((0xFF << (ys_px%8)) & (0xFF >> (7-(ye_px%8)))) : ((0xFF << (ys_px%8)) & (0xFF >> (7-(ye_px%8))));
+
+        for(uint8_t col = 0; col < xe_px - xs_px + 1; col++)
+          gram[start_page * sw + xs_px + col] &= mask;
+      }
+      else 
+      {
+        uint8_t y_border;
+
+        //first page
+        y_border = 8-(ys_px % 8);
+        mask = color_noinv ? 0xFF >> y_border : ~(0xFF >> y_border);
+       
+
+        for(uint8_t col = 0; col < xe_px - xs_px + 1; col++)
+          gram[start_page * sw + xs_px + col] &= mask;
+
+
+        //middle pages (if exist)
+        mask = color_noinv ? 0x00 : 0xFF;
+        for(uint8_t p = start_page+1; p < end_page; p++)
+          for(uint8_t col = 0; col < xe_px - xs_px + 1; col++)
+            gram[p * sw + xs_px + col] = mask;
+        
+
+        //last page
+        y_border = ye_px % 8 + 1;
+        mask = color_noinv ? 0xFF << y_border : ~(0xFF << y_border);
+
+        for(uint8_t col = 0; col < xe_px - xs_px + 1; col++)
+          gram[end_page * sw + xs_px + col] &= mask;
+      }
+    }
+    else
+    {
+      while(1);
+      // for(uint8_t col = range_xs; col <= range_xe; col++)
+      //   disp.iface.WriteData(&gram[col*sh + range_ys], range_ye-range_ys+1);
+    }
+  }
+}
+
 
 
 
@@ -935,6 +1015,10 @@ void DispSegment::update_row(uint8_t y_px, Font &font){
 
 
 
+
+
+
+
 /**
 * @brief Redraws the specified display area
 * @param[in] xs_px                    x start area coordinate in px
@@ -1108,6 +1192,9 @@ void SSD1306_Display::set_addr_mode(SSD1306_ADDR_MODE new_addr_mode)
 */
 void SSD1306_Display::set_hv_range(uint8_t x_start_px, uint8_t x_end_px, uint8_t y_start_pg, uint8_t y_end_pg)
 {
+  if(x_start_px > 127 || x_end_px > 127 || y_start_pg > 7 || y_end_pg > 7)
+    while(1);
+
   iface.WriteCommand(0x21); // set column address
   iface.WriteCommand(x_start_px);
   iface.WriteCommand(x_end_px);
@@ -1127,6 +1214,9 @@ void SSD1306_Display::set_hv_range(uint8_t x_start_px, uint8_t x_end_px, uint8_t
 */
 void SSD1306_Display::set_page_range(uint8_t x_start_px,  uint8_t y_start_pg)
 {
+  if(x_start_px > 127 || y_start_pg > 7)
+    while(1);
+
   iface.WriteCommand(0xB0 + y_start_pg);
 
   iface.WriteCommand(0x21); // set column address

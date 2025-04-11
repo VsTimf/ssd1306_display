@@ -240,39 +240,93 @@ void BarChart::draw(DispSegment* segment, signed* nv, uint8_t charts_num, uint8_
 
 
 
+/**
+ * @brief Construct a new Plot object
+ */
+Plot::Plot() : ds((DispSegment*)0){}
 
 
 
+/**
+ * @brief Construct a new Plot object
+ * 
+ * @param _ds                       // display segment
+ * @param _xmin                     // x-axis min
+ * @param _xmax                     // x-axis max
+ * @param _ymin                     // y-axis min
+ * @param _ymax                     // y-axis max 
+ * @param _xtitle                   // x-title
+ * @param _ytitle                   // y-title 
+ */
+Plot::Plot(DispSegment* _ds, signed _xmin, signed _xmax, signed _ymin, signed _ymax, char* _xtitle, char* _ytitle) : 
+ds(_ds), 
+xmin(_xmin), xmax(_xmax),
+ymin(_ymin), ymax(_ymax),
+xtitle(_xtitle), ytitle(_ytitle)
+{}
 
 
 
+/**
+ * @brief 
+ * 
+ * @param ds                          // display segment
+ * @param xmin                        // x-axis min
+ * @param xmax                        // x-axis max
+ * @param ymin                        // y-axis min
+ * @param ymax                        // y-axis max 
+ * @param xtitle                      // x-title
+ * @param ytitle                      // y-title 
+ */
+void Plot::init(DispSegment* ds, signed xmin, signed xmax, signed ymin, signed ymax, char* xtitle, char* ytitle)
+{
+  this->ds = ds;
+
+  // widjet dimensions
+  w = ds->sw;
+  h = ds->shp;
+  
+  // plot zero point
+  x0 = font5.height + 3;
+  y0 = (ds->shp - 1) - font5.height - 3;
+  
+  // plot dimensions
+  wp = w - x0 + 1;
+  hp = y0 + 1;
 
 
+  this->xmin = xmin;
+  this->xmax = xmax;
+
+  this->ymin = ymin;
+  this->ymax = ymax;
+
+  this->xtitle = xtitle;
+  this->ytitle = ytitle;
+}
 
 
+/**
+ * @brief Shows plot area: axes, titles, ticks
+ */
+void Plot::show()
+{
+  Plot::plot(ds, (signed*)0, 0, xmin, xmax, ymin, ymax, xtitle, ytitle);
+}
 
 
-// class Plot
-// {
-//     public:
-
-//     typedef enum {BOTTOM, MIDDLE, TOP} XAXIS_INDENT;
-//     typedef enum {LEFT, MIDDLE, RIGHT} YAXIS_INDENT;
-
-//     private:
-
-//     DispSegment* ds;        // pointer to display segment
-
-//     uint8_t x, y;           // base coordinates (px)
-//     uint8_t w, h;           // plot width and height (px)
-
-//     XAXIS_INDENT xind;
-//     YAXIS_INDENT yind;
-    
-//     public:
-//     Plot(DispSegment* segment, uint8_t x_px, uint8_t y_px, uint8_t width_px, uint8_t height_px, XAXIS_INDENT xind, YAXIS_INDENT yind);
-//     void show();
-// }
+/**
+ * @brief Draws data points
+ * 
+ * @param data                        // data to plot
+ * @param data_qnt                    // amount of data to plot
+ */
+void Plot::update_plot(signed* data, uint8_t data_qnt)
+{
+  ds->clear_part(8,0, w-1, y0, true);
+  draw_data(ds, data, data_qnt, x0, y0, hp, ymin, ymax);
+  ds->update_part(8,0, w-1, y0);
+}
 
 
 
@@ -285,7 +339,7 @@ void BarChart::draw(DispSegment* segment, signed* nv, uint8_t charts_num, uint8_
  * @param origin_scale                // Original scale, based on input raw data
  * @return unsigned                   // returns aligned scale
  */
-unsigned find_scale(unsigned origin_scale)
+unsigned Plot::find_scale(unsigned origin_scale)
 {
   static const unsigned pattern_scale_k[3] = {1, 2, 5};
 
@@ -315,7 +369,7 @@ unsigned find_scale(unsigned origin_scale)
  * @param xmin                        // pointer to variable to save calculated xmin
  * @param xmax                        // pointer to variable to save calculated xmax
  */
-static void calc_x_limits(DispSegment* ds, uint8_t data_qnt, signed* xmin, signed* xmax)
+void Plot::calc_x_limits(DispSegment* ds, uint8_t data_qnt, signed* xmin, signed* xmax)
 {
   uint8_t wp = ds->sw - (font5.height + 3) + 1;
 
@@ -334,7 +388,7 @@ static void calc_x_limits(DispSegment* ds, uint8_t data_qnt, signed* xmin, signe
  * @param ymin                        // pointer to variable to save calculated ymin
  * @param ymax                        // pointer to variable to save calculated ymax
  */
-static void calc_y_limits(DispSegment* ds, signed* data, uint8_t data_qnt, signed* ymin, signed* ymax)
+void Plot::calc_y_limits(DispSegment* ds, signed* data, uint8_t data_qnt, signed* ymin, signed* ymax)
 {
   uint8_t hp = ((ds->shp - 1) - font5.height - 3) + 1;
 
@@ -355,7 +409,7 @@ static void calc_y_limits(DispSegment* ds, signed* data, uint8_t data_qnt, signe
   }
 
 
-  scale = find_scale((imax - imin) / hp);
+  scale = Plot::find_scale((imax - imin) / hp);
 
 
   k = (imax > 0) ? ((imax % scale != 0) ? ((imax / scale) + 1) : (imax / scale)) : (imax / scale);
@@ -395,8 +449,8 @@ void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt, char* xtitle, c
 {
   signed xmin, xmax, ymin, ymax;
 
-  calc_x_limits(ds, data_qnt, &xmin, &xmax);
-  calc_y_limits(ds, data, data_qnt, &ymin, &ymax);
+  Plot::calc_x_limits(ds, data_qnt, &xmin, &xmax);
+  Plot::calc_y_limits(ds, data, data_qnt, &ymin, &ymax);
 
   plot(ds, data, data_qnt, xmin, xmax, ymin, ymax, xtitle, ytitle);
 }
@@ -418,7 +472,7 @@ void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed ymin, si
 {
   signed xmin, xmax;
 
-  calc_x_limits(ds, data_qnt, &xmin, &xmax);
+  Plot::calc_x_limits(ds, data_qnt, &xmin, &xmax);
   plot(ds, data, data_qnt, xmin, xmax, ymin, ymax, xtitle, ytitle);
 }
 
@@ -492,19 +546,37 @@ void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed xmin, si
   ds->draw_vline(x0-1, 0, h);        // y axis
   
 
+  draw_data(ds, data, data_qnt, x0, y0, hp, ymax, ymin);
+
+  ds->update();
+}
+
+
+
+/**
+ * @brief Draws given data points to plot area
+ * 
+ * @param ds                          // display segment
+ * @param data                        // data to plot
+ * @param data_qnt                    // amount of data to plot
+ * @param x0                          // left coordinate of plot area
+ * @param y0                          // bottom coordinate of plot area
+ * @param hp                          // height of plot area
+ * @param ymin                        // lowest value among "data" to plot
+ * @param ymax                        // highest value among "data" to plot
+ */
+void Plot::draw_data(DispSegment* ds, signed* data, uint8_t data_qnt, uint8_t x0, uint8_t y0, uint8_t hp, signed ymin, signed ymax)
+{
   signed range = ymax - ymin;                           // input range
   uint8_t px_out;                                       // data value expressed in pixels
   signed inp_val;
   for(uint8_t i = 0; i < data_qnt; i++)
   {
     inp_val = *(data+i);
-    if((inp_val > ymin) && (inp_val < ymax))
+    if((inp_val >= ymin) && (inp_val <= ymax))
     {
       px_out = ((inp_val - ymin) * (hp-1)) / range;
       ds->draw_pixel(i+x0, y0 - px_out);
     }
   }
-
-  ds->update();
 }
-
