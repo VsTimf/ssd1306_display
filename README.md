@@ -115,5 +115,8 @@ All this allows independly use segments, update and redraw them.
 > Plot 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Plot.jpg?raw=true)
 
+> Layout
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Layout.jpg?raw=true)
+
 > Bitmap
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Bitmap.jpg?raw=true)
