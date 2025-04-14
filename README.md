@@ -89,3 +89,14 @@ All this allows independly use segments, update and redraw them.
 
 #### NOTE: 
 **The library was developed to simplify the prototyping of electronic devices. It is not fully tested and may contain errors**
+
+#### SCREEN EXAMPLES
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/fonts.jpg?raw=true)
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Primitives.jpg?raw=true)
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Parameter1.jpg?raw=true)
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Parameter2.jpg?raw=true)
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Menu1.jpg?raw=true)
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Menu2.jpg?raw=true)
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Charts.jpg?raw=true)
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Plot.jpg?raw=true)
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Bitmap.jpg?raw=true)
