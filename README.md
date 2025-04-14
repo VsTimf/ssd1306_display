@@ -92,31 +92,41 @@ All this allows independly use segments, update and redraw them.
 
 #### SCREEN EXAMPLES
 > Fonts
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Fonts.jpg?raw=true)
 
 > Primitives
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Primitives.jpg?raw=true)
 
-> Parameters 
+> Parameters
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Parameter1.jpg?raw=true)
 
-> Parameters 
+> Parameters
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Parameter2.jpg?raw=true)
 
-> Menu 
+> Menu
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Menu1.jpg?raw=true)
 
-> Menu 
+> Menu
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Menu2.jpg?raw=true)
 
-> Charts 
+> Charts
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Charts.jpg?raw=true)
 
-> Plot 
+> Plot
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Plot.jpg?raw=true)
 
 > Layout
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Layout.jpg?raw=true)
 
 > Bitmap
+> 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Bitmap.jpg?raw=true)
