@@ -87,16 +87,33 @@ All this allows independly use segments, update and redraw them.
    test_title->update();
    ```
 
-#### NOTE: 
-**The library was developed to simplify the prototyping of electronic devices. It is not fully tested and may contain errors**
+> [!WARNING]
+> **The library was developed to simplify the prototyping of electronic devices. It is not fully tested and may contain errors**
 
 #### SCREEN EXAMPLES
-![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/fonts.jpg?raw=true)
+> Fonts
+![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Fonts.jpg?raw=true)
+
+> Primitives
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Primitives.jpg?raw=true)
+
+> Parameters 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Parameter1.jpg?raw=true)
+
+> Parameters 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Parameter2.jpg?raw=true)
+
+> Menu 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Menu1.jpg?raw=true)
+
+> Menu 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Menu2.jpg?raw=true)
+
+> Charts 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Charts.jpg?raw=true)
+
+> Plot 
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Plot.jpg?raw=true)
+
+> Bitmap
 ![alt text](https://github.com/VsTimf/ssd1306_display/blob/master/screenshots/Bitmap.jpg?raw=true)
