@@ -4,7 +4,11 @@
   *  Implements differents tests to check library and to show most commonly used use cases
 */
 
+#include "math.h"
+#include <stdio.h>
+
 #include "ssd1306_tests.hpp"
+
 
 
 #define RUN_DEFAULT_TESTS               // switch default tests and user tests
@@ -37,6 +41,9 @@ void ssd1306_run_tests(SSD1306_Display* display)
 
     ssd1306_chart_test(display);
 
+    ssd1306_plot_test(display);
+    HAL_Delay(3000);
+
     ssd1306_layout_test(display);
     HAL_Delay(3000);
 
@@ -61,13 +68,11 @@ void ssd1306_font_test(SSD1306_Display* display)
 {
     display->clear_screen();
 
-    display->write_string(0, ROW1, "Font Test", font16);
-
-    display->write_string(0, ROW3, "Font-8", font8);
-    display->write_string(0, ROW4, "״נטפע-8", font8);
-
-    display->write_string(0, ROW5, "Font-16", font16);
-    display->write_string(0, ROW7, "״נטפע-16", font16);
+    display->write_string(0, ROW3, "״נטפע / Font-5", font5);
+    display->write_string(0, ROW4, "״נטפע / Font-8", font8);
+    display->write_string(0, ROW7, "״נטפע/Font-16", font16);
+    
+    display->write_string(100, ROW1, "5", font_dig32);
 
     display->update_screen();
 }
@@ -249,6 +254,32 @@ void ssd1306_chart_test(SSD1306_Display* display)
 
 
 
+
+/**
+ * @brief Plot test
+ */
+void ssd1306_plot_test(SSD1306_Display* display)
+{
+    const signed points = 120;
+    signed amplitude = 100;
+
+    char sbuf[15];
+    sprintf(sbuf, "Amp = %d", amplitude);
+
+    signed data_points[points];
+
+    for(signed i = 0; i<points; i++)
+        data_points[i] = (signed)(sin((2*3.14)/points*i)*amplitude);
+
+    display->clear_screen();
+    Plot::plot(display->dds, data_points, points, -amplitude, amplitude, sbuf, "sin");
+}
+
+
+
+
+
+
 /**
  * @brief Layout test
  */
@@ -267,9 +298,9 @@ void ssd1306_layout_test(SSD1306_Display* display)
   
     test_layout = display->create_layout();
     
-    test_title  = test_layout->create_segment(SSD1306_ADDR_MODE::HORIZONTAL, 0, 0, display->WIDTH_PX-1, 1);
-    test_horizontal_area  = test_layout->create_segment(SSD1306_ADDR_MODE::HORIZONTAL, 16, 2, display->WIDTH_PX-1, display->HEIGHT_PG-1);
-    test_vertical_area = test_layout->create_segment(SSD1306_ADDR_MODE::VERTICAL, 0, 2, 15, display->HEIGHT_PG-1);
+    test_title  = display->create_segment(test_layout, SSD1306_ADDR_MODE::HORIZONTAL, 0, 0, display->WIDTH_PX-1, 1);
+    test_horizontal_area  = display->create_segment(test_layout, SSD1306_ADDR_MODE::HORIZONTAL, 16, 2, display->WIDTH_PX-1, display->HEIGHT_PG-1);
+    test_vertical_area = display->create_segment(test_layout, SSD1306_ADDR_MODE::VERTICAL, 0, 2, 15, display->HEIGHT_PG-1);
   
   
     test_title->write_string(0, ROW1, "Layout Test", font16);

@@ -546,7 +546,7 @@ void Plot::plot(DispSegment* ds, signed* data, uint8_t data_qnt, signed xmin, si
   ds->draw_vline(x0-1, 0, h);        // y axis
   
 
-  draw_data(ds, data, data_qnt, x0, y0, hp, ymax, ymin);
+  draw_data(ds, data, data_qnt, x0, y0, hp, ymin, ymax);
 
   ds->update();
 }

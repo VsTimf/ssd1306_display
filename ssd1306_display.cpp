@@ -132,7 +132,7 @@ void DispSegment::clear_row(uint8_t y_pg, bool color_noinv)
 
 
 /**
-* @brief Clears part of the specified display area 
+* @brief Clears part of the specified display area. Do it in fast way by writing bytes, not by switching each pixel
 * 
 * @param[in] xs_px                    x start area coordinate in px
 * @param[in] ys_px                    y start area coordinate in px
@@ -201,9 +201,41 @@ void DispSegment::clear_part(uint8_t xs_px, uint8_t ys_px, uint8_t xe_px, uint8_
     }
     else
     {
-      while(1);
-      // for(uint8_t col = range_xs; col <= range_xe; col++)
-      //   disp.iface.WriteData(&gram[col*sh + range_ys], range_ye-range_ys+1);
+     
+      if(start_page == end_page)
+      {
+        mask = color_noinv ? ~((0xFF << (ys_px%8)) & (0xFF >> (7-(ye_px%8)))) : ((0xFF << (ys_px%8)) & (0xFF >> (7-(ye_px%8))));
+
+        for(uint8_t col = 0; col < xe_px - xs_px + 1; col++)
+          gram[(xs_px + col)*sh + start_page] &= mask;
+      }
+      else 
+      {
+        uint8_t y_border;
+
+        //first page
+        y_border = 8-(ys_px % 8);
+        mask = color_noinv ? 0xFF >> y_border : ~(0xFF >> y_border);
+       
+
+        for(uint8_t col = 0; col < xe_px - xs_px + 1; col++)
+          gram[(xs_px + col)*sh + start_page] &= mask;
+
+
+        //middle pages (if exist)
+        mask = color_noinv ? 0x00 : 0xFF;
+        for(uint8_t p = start_page+1; p < end_page; p++)
+          for(uint8_t col = 0; col < xe_px - xs_px + 1; col++)
+          gram[(xs_px + col)*sh + p] = mask;
+        
+
+        //last page
+        y_border = ye_px % 8 + 1;
+        mask = color_noinv ? 0xFF << y_border : ~(0xFF << y_border);
+
+        for(uint8_t col = 0; col < xe_px - xs_px + 1; col++)
+          gram[(xs_px + col)*sh + end_page] &= mask;
+      }
     }
   }
 }

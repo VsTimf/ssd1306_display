@@ -18,7 +18,7 @@ Library is written for the STM32 MCU, but may be ported to any other MCU by modi
 
 This library focuses on:
 * updating only the necessary parts of the display, rather than the entire display
-* having basic GUI primitives (menu items, progressbars, charts) out of the box
+* having basic GUI primitives (menu items, progressbars, charts, plots) out of the box
 
 
 ### DETAILED DESCRIPTION:
@@ -79,9 +79,9 @@ All this allows independly use segments, update and redraw them.
    ```
    test_layout = display->create_layout();
     
-   test_title            = test_layout->create_segment(SSD1306_ADDR_MODE::HORIZONTAL, 0,  0, display->WIDTH_PX-1, 1);
-   test_verctical_area   = test_layout->create_segment(SSD1306_ADDR_MODE::VERTICAL,   0,  2, 15,                  display->HEIGHT_PG-1);
-   test_horizontal_area  = test_layout->create_segment(SSD1306_ADDR_MODE::HORIZONTAL, 16, 2, display->WIDTH_PX-1, display->HEIGHT_PG-1);
+   test_title            = display->create_segment(test_layout, SSD1306_ADDR_MODE::HORIZONTAL, 0,  0, display->WIDTH_PX-1, 1);
+   test_verctical_area   = display->create_segment(test_layout, SSD1306_ADDR_MODE::VERTICAL,   0,  2, 15,                  display->HEIGHT_PG-1);
+   test_horizontal_area  = display->create_segment(test_layout, SSD1306_ADDR_MODE::HORIZONTAL, 16, 2, display->WIDTH_PX-1, display->HEIGHT_PG-1);
 
    test_title->write_string(0, ROW1, "Layout Test", font16); 
    test_title->update();
