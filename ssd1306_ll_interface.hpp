@@ -10,7 +10,7 @@
  * 
  * To use DMA - in STM32CubeMX config corresponding i2C DMA Stream and enable I2C and DMA interrupts
  */
-#define USE_DMA_TRANSFER 
+// #define USE_DMA_TRANSFER 
 
 class SSD1306_LL_INTERFACE
 {
