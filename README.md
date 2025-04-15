@@ -12,6 +12,7 @@ Library is written for the STM32 MCU, but may be ported to any other MCU by modi
 - Draw GUI primitives (items, progressbars, charts & plots)
 - Select menu items (draw arrow near selected item or inverse item color)
 - Draw bitmap pictures
+- Optional transfer through DMA (see ssd1306_ll_interface.hpp)
 
 
 ### SHORT DESCRIPTION:

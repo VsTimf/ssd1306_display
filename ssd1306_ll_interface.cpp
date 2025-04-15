@@ -35,7 +35,7 @@ void SSD1306_LL_INTERFACE::reset(void) const {
  */
 void SSD1306_LL_INTERFACE::WriteCommand(uint8_t cmd) const {
     while(((I2C_HandleTypeDef*)interface)->State != HAL_I2C_STATE_READY);
-    HAL_I2C_Mem_Write((I2C_HandleTypeDef*)interface, address, 0x00, 1, &cmd, 1, HAL_MAX_DELAY);
+    HAL_I2C_Mem_Write((I2C_HandleTypeDef*)interface, address, 0x00, I2C_MEMADD_SIZE_8BIT, &cmd, 1, HAL_MAX_DELAY);
 }
 
 
@@ -49,34 +49,59 @@ void SSD1306_LL_INTERFACE::WriteCommand(uint8_t cmd) const {
  */
 void SSD1306_LL_INTERFACE::WriteData(uint8_t* data, uint16_t data_size) const {
     while(((I2C_HandleTypeDef*)interface)->State != HAL_I2C_STATE_READY);
-    HAL_I2C_Mem_Write((I2C_HandleTypeDef*)interface, address, 0x40, 1, data, data_size, 500);
+
+    #ifndef USE_DMA_TRANSFER
+    HAL_I2C_Mem_Write((I2C_HandleTypeDef*)interface, address, 0x40, I2C_MEMADD_SIZE_8BIT, data, data_size, 500);
+
+    #else
+
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CR |= DMA_SxCR_MINC;
+    //((I2C_HandleTypeDef*)interface)->hdmatx->Init.MemInc = DMA_MINC_DISABLE;
+    HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, I2C_MEMADD_SIZE_8BIT, data, data_size);
+    #endif
+
 }
 
 
 
 
 /**
- * @brief Fills ssd1306 memory. Uses DMA
+ * @brief Fills ssd1306 memory with specified pattern. Uses DMA
  * 
  * @param pattern                     fills memory with this pattern
  * @param data_size                   amount of data bytes
  */
 void SSD1306_LL_INTERFACE::FillMemory(uint8_t pattern, unsigned data_size) const {
-    static uint8_t memory_pattern = pattern;
+    static uint8_t memory_pattern;
+
+    #ifndef USE_DMA_TRANSFER
+    return;
+    #endif
     
+    while(((I2C_HandleTypeDef*)interface)->State != HAL_I2C_STATE_READY);
+    memory_pattern = pattern;
+
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CR &= ~DMA_SxCR_MINC;
+   // ((I2C_HandleTypeDef*)interface)->hdmatx->Init.MemInc = DMA_MINC_DISABLE;
+
+    #ifndef STM32G0
+    HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, I2C_MEMADD_SIZE_8BIT, &memory_pattern, data_size);
+    #else
+
     while(1)
     {
+      if(data_size > 255)
+      {
         while(((I2C_HandleTypeDef*)interface)->State != HAL_I2C_STATE_READY);
-
-        if(data_size > 255)
-        {
-          HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, 1, &memory_pattern, 255);
-          data_size -= 255;
-        }
-        else
-        {
-          HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, 1, &memory_pattern, data_size);
-          return;
-        }
+        HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, I2C_MEMADD_SIZE_8BIT, &memory_pattern, 255);
+        data_size -= 255;
+      }
+      else
+      {
+        while(((I2C_HandleTypeDef*)interface)->State != HAL_I2C_STATE_READY);
+        HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, I2C_MEMADD_SIZE_8BIT, &memory_pattern, data_size);
+        return;
+      }
     }
+    #endif
 }

@@ -2,6 +2,14 @@
 
 #include <stm32_cmsis.h>                // Include HAL Library for your mcu (#include <stm32g0xx.h> for example) in this header file 
 
+/* Uncomment line below to use asynch DMA Transfer
+ *
+ * Please note, that due to differences in the peripherals, this function may not work on some series of microcontrollers (e.g. STM32G0).
+ * Also note, that due to the asynchrony of the transfer, it is possible to change the data for display before sending it to the screen controller. This will result in incorrect display on the screen
+ * 
+ * To use DMA - in STM32CubeMX config corresponding i2C DMA Stream and enable I2C and DMA interrupts
+ */
+#define USE_DMA_TRANSFER 
 
 class SSD1306_LL_INTERFACE
 {
