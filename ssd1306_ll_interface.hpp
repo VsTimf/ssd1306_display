@@ -4,7 +4,8 @@
 
 /* Uncomment line below to use asynch DMA Transfer
  *
- * Please note, that due to differences in the peripherals, this function may not work on some series of microcontrollers (e.g. STM32G0).
+ * Please note, that due to differences in the peripherals, this function may not work on some series of microcontrollers 
+ * (in this case you should write your own code - see how it is written for STM32G0 in .c file)
  * Also note, that due to the asynchrony of the transfer, it is possible to change the data for display before sending it to the screen controller. This will result in incorrect display on the screen
  * 
  * To use DMA - in STM32CubeMX config corresponding i2C DMA Stream and enable I2C and DMA interrupts

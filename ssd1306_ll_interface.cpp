@@ -55,9 +55,16 @@ void SSD1306_LL_INTERFACE::WriteData(uint8_t* data, uint16_t data_size) const {
 
     #else
 
+    #ifdef STM32G0
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CCR &= ~DMA_CCR_EN;
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CCR |= DMA_CCR_MINC;
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CCR |= DMA_CCR_EN;
+    #else
     ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CR |= DMA_SxCR_MINC;
-    //((I2C_HandleTypeDef*)interface)->hdmatx->Init.MemInc = DMA_MINC_DISABLE;
+    #endif
+    
     HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, I2C_MEMADD_SIZE_8BIT, data, data_size);
+    
     #endif
 
 }
@@ -81,12 +88,12 @@ void SSD1306_LL_INTERFACE::FillMemory(uint8_t pattern, unsigned data_size) const
     while(((I2C_HandleTypeDef*)interface)->State != HAL_I2C_STATE_READY);
     memory_pattern = pattern;
 
-    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CR &= ~DMA_SxCR_MINC;
-   // ((I2C_HandleTypeDef*)interface)->hdmatx->Init.MemInc = DMA_MINC_DISABLE;
+    
 
-    #ifndef STM32G0
-    HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, I2C_MEMADD_SIZE_8BIT, &memory_pattern, data_size);
-    #else
+    #ifdef STM32G0
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CCR &= ~DMA_CCR_EN;
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CCR &= ~DMA_CCR_MINC;
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CCR |= DMA_CCR_EN;
 
     while(1)
     {
@@ -103,5 +110,11 @@ void SSD1306_LL_INTERFACE::FillMemory(uint8_t pattern, unsigned data_size) const
         return;
       }
     }
+  
+
+    #else
+    ((I2C_HandleTypeDef*)interface)->hdmatx->Instance->CR &= ~DMA_SxCR_MINC;
+    HAL_I2C_Mem_Write_DMA((I2C_HandleTypeDef*)interface, address, 0x40, I2C_MEMADD_SIZE_8BIT, &memory_pattern, data_size);
+
     #endif
 }
