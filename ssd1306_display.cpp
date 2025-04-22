@@ -753,14 +753,14 @@ void DispSegment::draw_filled_circle(uint8_t x_px, uint8_t y_px, uint8_t r_px, b
 * @param[in] p_val                    parameter numeric value 
 * @param[in] selected                 (optional, def = false) determines if this row is selected (highlighted with a sign or color)
 */
-void DispSegment::draw_param(uint8_t y_px, const char* str, Font &font, signed p_val, bool selected){
+void DispSegment::draw_param(uint8_t y_px, const char* str, Font &font, signed  p_val, bool selected){
   char sbuf[10];
   sprintf(sbuf, "%d", p_val);
 
   if(select_method == SSD1306_ITEM_SELECT_METHOD::ARROW)
   {
     clear_font_px(0, y_px, sw, font, SSD1306_COLOR_NON_INV);
-    if(selected)
+    if(selected) 
       write_string(0, y_px, ">", font, SSD1306_COLOR_NON_INV);
     write_string(font.width+font.interval, y_px, str, font, SSD1306_COLOR_NON_INV);
 
@@ -1087,7 +1087,7 @@ void DispSegment::update_part(uint8_t xs_px, uint8_t ys_px, uint8_t xe_px, uint8
     if(addr_mode == SSD1306_ADDR_MODE::HORIZONTAL)
     {
       for(uint8_t pg = range_ys; pg<=range_ye; pg++)
-        disp.iface.WriteData(&gram[(pg-ps)*sw + xs_px-cs], xe_px-xs_px+1);
+        disp.iface.WriteData(&gram[(pg-ps)*sw + xs_px], xe_px-xs_px+1);
     }
     else
     {

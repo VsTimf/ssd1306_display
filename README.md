@@ -13,6 +13,7 @@ Library is written for the STM32 MCU, but may be ported to any other MCU by modi
 - Select menu items (draw arrow near selected item or inverse item color)
 - Draw bitmap pictures
 - Optional transfer through DMA (see ssd1306_ll_interface.hpp)
+- Simple Terminal (beta)
 
 
 ### SHORT DESCRIPTION:
@@ -44,6 +45,7 @@ All this allows independly use segments, update and redraw them.
 - ssd1306_fonts.cpp (.hpp)          - contains embedded fonts
 - ssd1306_bitmaps.cpp (.hpp)        - contains class definition for bitmap pictures
 - ssd1306_charts.cpp (.hpp)         - contains graphics charts (bar charts and simple plots)
+- ssd1306_terminal.cpp (.hpp)       - contains simple terminal implementation (aka cmd) !!! beta functionality !!!
 - ssd1306_tests.cpp (.hpp)          - contains tests and use-cases
 
 
